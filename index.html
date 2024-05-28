@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0" />
+    <title>Lightweight Charts™ Customization Tutorial</title>
+    <!-- Adding the standalone version of Lightweight charts -->
+    <script type="text/javascript"
+        src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
+    <style>
+        body {
+            padding: 10;
+            margin: 10;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="container" style="position: absolute; width: 100%; height: 80%"></div>
+    <script type="text/javascript">
+        ;
+
+        var chart = LightweightCharts.createChart(
+            document.getElementById('container'), {
+
+            layout: {
+                backgroundColor: '#ffffff',
+                textColor: 'rgba(33, 56, 77, 1)',
+            },
+            grid: {
+                vertLines: {
+                    color: 'rgba(197, 203, 206, 0.7)',
+                },
+                horzLines: {
+                    color: 'rgba(197, 203, 206, 0.7)',
+                },
+            },
+            timeScale: {
+                timeVisible: true,
+                secondsVisible: true,
+            },
+        });
+
+
+
+
+        // Create the Main Series (Candlesticks)
+        const lin = chart.addLineSeries({
+            priceFormat: {
+                minMove: 0.000001,
+                precision: 6,
+            },
+            color: '#4B0082'
+        });
+
+        const lich = chart.addLineSeries({
+            priceFormat: {
+                minMove: 0.000001,
+                precision: 6,
+            },
+            color: '#964B00'
+        });
+        const litrend = chart.addLineSeries({
+            priceFormat: {
+                minMove: 0.000001,
+                precision: 6,
+            },
+            color: '#000000'
+        });
+        const lis = chart.addLineSeries({
+            priceFormat: {
+                minMove: 0.000001,
+                precision: 6,
+            },
+            color: '#FF0000'
+        });
+        const lineSeries = chart.addLineSeries();
+        const lineS = chart.addLineSeries({
+            priceFormat: {
+                minMove: 0.000001,
+                precision: 6,
+            },
+            color: '#00ff00'
+        });
+        const lineSe = chart.addLineSeries({
+            priceFormat: {
+                minMove: 0.000001,
+                precision: 6,
+            },
+            color: '#FFC0CB'
+        });
+        var candleSeries = chart.addCandlestickSeries({
+            upColor: '#00ff00',
+            downColor: '#ff0000',
+            borderDownColor: 'rgba(255, 144, 0, 1)',
+            borderUpColor: 'rgba(255, 144, 0, 1)',
+            wickDownColor: 'rgba(255, 144, 0, 1)',
+            wickUpColor: 'rgba(255, 144, 0, 1)',
+        });
+       //const socket = new WebSocket('wss://lunaaab.fly.dev');
+       const socket = new WebSocket('ws://127.0.0.1:8080')
+        //const socket = new WebSocket('wss://backendp.fly.dev');//https://backendp.fly.dev/
+ // WebSocket server address
+        const tradeContainer = document.getElementById('tradeContainer');
+
+        socket.onopen = function () {
+            console.log('WebSocket connection established.');
+        };
+
+        socket.onmessage = function (event) {
+            const tradeData = JSON.parse(event.data);
+            if ((tradeData.length >= 1) ){//&& typeof tradeData[tradeData.length - 1]["hdl1"] === 'number' && typeof tradeData[tradeData.length - 1]["hdl2"] === 'number') {
+                let newList = tradeData.map(({ time, open, high, low, close }) => ({
+                    time,
+                    open,
+                    high,
+                    low,
+                    close
+                }));
+                let lineList = tradeData.map(({ time, hdl1 }) => ({
+                    time,
+                    value: hdl1
+                    }));
+                    let li = tradeData.map(({ time, trend }) => ({
+                    time,
+                    value: trend
+                    }));
+
+                    let lineList2 = tradeData.map(({ time, hdl2 }) => ({
+                    time,
+                    value: hdl2
+                    }));
+                    let lineList3 = tradeData.map(({ time, ver1 }) => ({
+                    time,
+                    value: ver1
+                    }));
+                    let lineList4 = tradeData.map(({ time, ver2 }) => ({
+                    time,
+                    value: ver2
+                    }));
+                    let line_ch = tradeData.map(({ time, ch }) => ({
+                    time,
+                    value: ch
+                    }));
+                    let line_trend = tradeData.map(({ time, trend }) => ({
+                    time,
+                    value: trend
+                    }));
+
+
+
+
+
+                candleSeries.setData(newList);
+                lineS.setData(lineList);
+                lis.setData(li);
+                lineSe.setData(lineList2);
+                lineSeries.setData(lineList3);
+                lin.setData(lineList4);
+                lich.setData(line_ch);
+                litrend.setData(line_trend);
+                
+                console.log(tradeData);
+            }
+            //displayTradeData(tradeData);
+        };
+
+        socket.onerror = function (error) {
+            console.error('WebSocket error:', error);
+        };
+
+        //function displayTradeData(tradeData) {
+        //    const tradeElement = document.createElement('div');
+        //   tradeElement.classList.add('trade-data');
+        //    tradeElement.textContent = JSON.stringify(tradeData);
+        //   tradeContainer.appendChild(tradeElement);
+        //}
+        //       if ((tradeData[tradeData.length-1]["hdl1"] !== null && typeof tradeData[tradeData.length-1]["hdl1"] === 'number' && !isNaN(tradeData[tradeData.length-1]["hdl1"])) && (tradeData[tradeData.length-1]["hdl2"] !== null && typeof tradeData[tradeData.length-1]["hdl2"] === 'number' && !isNaN(tradeData[tradeData.length-1]["hdl2"])))
+        window.addEventListener("resize", () => {
+            chart.resize(window.innerWidth, window.innerHeight);
+        });
+
+    </script>
+</body>
+
+</html>
